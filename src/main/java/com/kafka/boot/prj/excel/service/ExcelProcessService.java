@@ -1,5 +1,6 @@
 package com.kafka.boot.prj.excel.service;
 
+import com.kafka.boot.prj.excel.service.model.ExcelToProcess;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
@@ -31,11 +32,15 @@ public class ExcelProcessService {
             DataFormatter formatter = new DataFormatter();
             //FileInputStream file = new FileInputStream(new File("C:\\Users\\sabatinija\\Desktop\\VODAFONE\\SG7581 - GigaRicarica\\TestBook\\TestBook_Progettazione Giga Ricarica - Copy.xls"));
             FileInputStream file = new FileInputStream(new File("TestBook_Progettazione Giga Ricarica - Copy.xls"));
-            Workbook workbook = new HSSFWorkbook(file);
+            HSSFWorkbook workbook = new HSSFWorkbook(file);
             Sheet sheet = workbook.getSheetAt(service.SHEET);
             service.setFineNumber(formatter, sheet, service.COLUMN, service.ROW, service.PATTERN_FINE_NUMBER);
             System.out.println("fineNumber: " + service.fineNumber);
-            service.renumberingOfTestName(sheet, service.COLUMN, service.TC.concat(service.fineNumber));
+            ExcelToProcess excel = new ExcelToProcess(workbook);
+            excel.setSheet(sheet);
+                    //.setColumn(service.COLUMN)
+
+//            service.renumberingOfTestName(sheet, service.COLUMN, service.TC);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -72,20 +77,23 @@ public class ExcelProcessService {
         return fineNumber;
     }
 
-    private void renumberingOfTestName(final Sheet sheet, final int COLUMN, final String TC_NUM) {
-        final String INTIAL_NUMB = "001";
+    private void renumberingOfTestName(ExcelToProcess excel) {
+        final Sheet sheet = excel.getSheet();
+        final int column = excel.getColumn();
         DataFormatter formatter = new DataFormatter();
         for (int i = 0; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (Objects.nonNull(row)) {
-                    String cellValue;
-                    if ((cellValue = formatter.formatCellValue(row.getCell(COLUMN))).contains(SG)) {
-                        cellValue = cellValue.trim();
-                        final int start = cellValue.indexOf(TC_NUM) + TC_NUM.length();
-                        final int end = cellValue.length();
-                        String lll = cellValue.substring(start, end);
-                        System.out.println(lll);
-                    }
+                String cellValue;
+                if ((cellValue = formatter.formatCellValue(row.getCell(column))).contains(SG)) {
+                    cellValue = cellValue.trim();
+                    final int startFineWord = cellValue.indexOf(TC) + 2;
+                    System.out.printf("%d ", startFineWord);
+                    final int end = cellValue.length();
+                    String prefixOfFineWord = cellValue.substring(0, startFineWord);
+                    String num = cellValue.substring(startFineWord, end);
+                    System.out.println(prefixOfFineWord + " " +  num);
+                }
                     /*
                     if(cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
                         valuesadd(cell.getNumericCellValue());
@@ -94,9 +102,9 @@ public class ExcelProcessService {
                     }*/
 
 
-                }
             }
         }
     }
+}
 
 

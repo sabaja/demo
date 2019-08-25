@@ -22,62 +22,81 @@ public class ExcelToProcess {
     private Cell cell;
     private String fineNumber;
     private String ogg;
+    private int column;
 
-    private ExcelToProcess() {
-        /* Use Builder to create ExcellToProcess */}
+    public ExcelToProcess(HSSFWorkbook workBook) {
+        this.workBook = workBook;
+    }
+
+    public HSSFWorkbook getWorkBook() {
+        return workBook;
+    }
+
+    public Sheet getSheet() {
+        return sheet;
+    }
+
+    public Row getRow() {
+        return row;
+    }
+
+    public Cell getCell() {
+        return cell;
+    }
+
+    public String getFineNumber() {
+        return fineNumber;
+    }
+
+    public String getOgg() {
+        return ogg;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    public void setWorkBook(HSSFWorkbook workBook) {
+        this.workBook = workBook;
+    }
+
+    public void setSheet(Sheet sheet) {
+        this.sheet = sheet;
+    }
+
+    public void setRow(Row row) {
+        this.row = row;
+    }
+
+    public void setCell(Cell cell) {
+        this.cell = cell;
+    }
+
+    public void setFineNumber(String fineNumber) {
+        this.fineNumber = fineNumber;
+    }
+
+    public void setOgg(String ogg) {
+        this.ogg = ogg;
+    }
+
+    public void setColumn(int column) {
+        this.column = column;
+    }
 
     @Override
     public String toString() {
-        return "ExcelToProcess [workBook=" + workBook + ", sheet=" + sheet + ", row=" + row + ", cell=" + cell
-                + ", fineNumber=" + fineNumber + ", ogg=" + ogg + "]";
+        return "ExcelToProcess{" +
+                "workBook=" + workBook +
+                ", sheet=" + sheet +
+                ", row=" + row +
+                ", cell=" + cell +
+                ", fineNumber='" + fineNumber + '\'' +
+                ", ogg='" + ogg + '\'' +
+                ", column=" + column +
+                '}';
     }
 
-    public ExcelToProcess(Builder builder) {
-        this.sheet = builder.sheet;
-        this.row = builder.row;
-        this.cell = builder.cell;
-        this.fineNumber = builder.fineNumber;
-        this.ogg = builder.ogg;
-    }
 
-    public  class Builder {
-
-        private HSSFWorkbook workBook;
-        private Sheet sheet;
-        private Row row;
-        private Cell cell;
-        private String fineNumber;
-        private String ogg;
-
-        public Builder(HSSFWorkbook workBook) {
-            super();
-            this.workBook = workBook;
-        }
-
-        public void set_sheet(Sheet sheet) {
-            this.sheet = sheet;
-        }
-
-        public void set_row(Row row) {
-            this.row = row;
-        }
-
-        public void set_cell(Cell cell) {
-            this.cell = cell;
-        }
-
-        public void set_fineNumber(String fineNumber) {
-            this.fineNumber = fineNumber;
-        }
-
-        public void set_ogg(String ogg) {
-            this.ogg = ogg;
-        }
-
-        public ExcelToProcess build() {
-            return new ExcelToProcess(this);
-        }
-
-    }
 
 }
