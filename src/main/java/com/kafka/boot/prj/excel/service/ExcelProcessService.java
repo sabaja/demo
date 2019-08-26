@@ -1,13 +1,12 @@
 package com.kafka.boot.prj.excel.service;
 
-import com.kafka.boot.prj.excel.service.model.ExcelToProcess;
+import com.kafka.boot.prj.excel.dto.ExcelToProcess;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -18,38 +17,26 @@ public class ExcelProcessService {
 
     private final String TC = "TC";
     private final String SG = "SG";
-    private final String PATTERN_FINE_NUMBER = "00";
-    private final String PATTERN_OGG_NUMBER = "000";
-    private final int COLUMN = 2;
+    private final String OGG = "Ogg. ";
+    private final String FORMAT_PATTERN_NUM = "000";
+    private final String FORMAT_PATTERN_FINE = "00";
+    private final int FINE_COLUMN = 2;
+    private final int OGG_COLUMN = 4;
     private final int ROW = 1;
-    private final int SHEET = 1;
-    private String fineNumber;
+    private final int SHEET = 2;
 
-    public static void main(String[] args) {
+    @Autowired
+    private ExcelToProcess excelToProcess;
 
-        try {
-            ExcelProcessService service = new ExcelProcessService();
-            DataFormatter formatter = new DataFormatter();
-            //FileInputStream file = new FileInputStream(new File("C:\\Users\\sabatinija\\Desktop\\VODAFONE\\SG7581 - GigaRicarica\\TestBook\\TestBook_Progettazione Giga Ricarica - Copy.xls"));
-            FileInputStream file = new FileInputStream(new File("TestBook_Progettazione Giga Ricarica - Copy.xls"));
-            HSSFWorkbook workbook = new HSSFWorkbook(file);
-            Sheet sheet = workbook.getSheetAt(service.SHEET);
-            service.setFineNumber(formatter, sheet, service.COLUMN, service.ROW, service.PATTERN_FINE_NUMBER);
-            System.out.println("fineNumber: " + service.fineNumber);
-            ExcelToProcess excel = new ExcelToProcess(workbook);
-            excel.setSheet(sheet);
-                    //.setColumn(service.COLUMN)
 
-//            service.renumberingOfTestName(sheet, service.COLUMN, service.TC);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public ExcelProcessService() {
     }
 
-    private void setFineNumber(final DataFormatter formatter, final Sheet sheet, final int COLUMN, final int ROW, final String pattern) {
-        String tempNumber = findFineNumber(formatter, sheet, COLUMN, ROW);
-        fineNumber = formatNumber(Integer.valueOf(tempNumber), pattern);
+
+    private String addFineNumber(final ExcelToProcess excelToProcess) {
+        DataFormatter formatter = new DataFormatter();
+        return findFineNumber(formatter, excelToProcess.getSheet(), excelToProcess.getColumnFineNumber(), excelToProcess.getRowNumber());
+        //return formatNumber(Integer.valueOf(tempNumber), pattern);
     }
 
     private String findFineNumber(DataFormatter formatter, Sheet sheet, final int COLUMN, final int ROW) {
@@ -67,7 +54,7 @@ public class ExcelProcessService {
             System.out.println("Found TC at index " + match.start() + " - " + (match.end()) + " - " + text.length());
             fineNumber = Integer.valueOf(text.substring(match.end(), match.end() + 2));
         }
-        return String.valueOf(fineNumber);
+        return formatNumber(fineNumber, this.FORMAT_PATTERN_FINE);
     }
 
     private String formatNumber(final Integer tempNum, final String pattern) {
@@ -77,32 +64,84 @@ public class ExcelProcessService {
         return fineNumber;
     }
 
-    private void renumberingOfTestName(ExcelToProcess excel) {
+    public void renumbering(ExcelToProcess excel) {
         final Sheet sheet = excel.getSheet();
-        final int column = excel.getColumn();
+        final int columnFine = excel.getColumnFineNumber();
+        final int columnOgg = excel.getColumnOggNumber();
         DataFormatter formatter = new DataFormatter();
-        for (int i = 0; i <= sheet.getLastRowNum(); i++) {
+        String prefixOfFineWord = null, prefixOfOggWord = null;
+        String cellFineValue, cellOggValue;
+        for (int i = 0, fineIndex = 0, oggIndex = 0; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (Objects.nonNull(row)) {
-                String cellValue;
-                if ((cellValue = formatter.formatCellValue(row.getCell(column))).contains(SG)) {
-                    cellValue = cellValue.trim();
-                    final int startFineWord = cellValue.indexOf(TC) + 2;
-                    System.out.printf("%d ", startFineWord);
-                    final int end = cellValue.length();
-                    String prefixOfFineWord = cellValue.substring(0, startFineWord);
-                    String num = cellValue.substring(startFineWord, end);
-                    System.out.println(prefixOfFineWord + " " +  num);
+                Cell fineCell = row.getCell(columnFine);
+                Cell oggCell = row.getCell(columnOgg);
+
+                //Renumbering of TC
+                if ((cellFineValue = formatter.formatCellValue(fineCell)).contains(SG)) {
+                    fineIndex++;
+                    //cellValue = cellValue.trim();
+                    final int startFineWord = cellFineValue.indexOf(TC) + TC.length();
+                    // System.out.printf("%d ", startFineWord);
+
+                    if (Objects.isNull(prefixOfFineWord)) {
+                        prefixOfFineWord = cellFineValue.substring(0, startFineWord);
+                    }
+                    String num = this.formatNumber(fineIndex, FORMAT_PATTERN_NUM);
+                    System.out.println(prefixOfFineWord + " " + num);
+                    cellFineValue = prefixOfFineWord + excel.getFineNumber() + num;
+                    fineCell.setCellValue(cellFineValue);
                 }
-                    /*
-                    if(cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                        valuesadd(cell.getNumericCellValue());
-                    } else if(cell.getCellType() == Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Cell.CELL_TYPE_NUMERIC) {
-                        valuesadd(c.getNumericCellValue());
-                    }*/
 
+                //Renumbering of Ogg.
+                if ((cellOggValue = formatter.formatCellValue(oggCell)).contains(OGG)) {
+                    oggIndex++;
+                    //cellValue = cellValue.trim();
+                    final int startFineWord = cellOggValue.indexOf(OGG) + OGG.length();
+                    // System.out.printf("%d ", startFineWord);
 
+                    if (Objects.isNull(prefixOfOggWord)) {
+                        prefixOfOggWord = cellOggValue.substring(0, startFineWord);
+                    }
+                    String num = this.formatNumber(oggIndex, FORMAT_PATTERN_NUM);
+                    System.out.println(prefixOfOggWord + " " + num);
+                    cellOggValue = prefixOfOggWord + excel.getFineNumber() + num;
+                    oggCell.setCellValue(cellOggValue);
+                }
             }
+        }
+        try (OutputStream fileOut = new FileOutputStream(excel.getPath())) {
+            HSSFWorkbook wb = excel.getWorkBook();
+            wb.write(fileOut);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void main(String[] args) {
+
+        try {
+            String path = "C:\\Users\\sabatinija\\Desktop\\Testrename\\TestBook_Progettazione Giga Ricarica - Copy.xls";
+            //String path = "TestBook_Progettazione Giga Ricarica - Copy.xls";
+            ExcelProcessService service = new ExcelProcessService();
+            FileInputStream file = new FileInputStream(new File(path));
+            // FileInputStream file = new FileInputStream(new File());
+            HSSFWorkbook workbook = new HSSFWorkbook(file);
+            ExcelToProcess excel = new ExcelToProcess(workbook);
+            excel.setPath(path);
+            excel.setSheetNumber(service.SHEET);
+            excel.setRowNumber(service.ROW);
+            excel.setColumnFineNumber(service.FINE_COLUMN);
+            excel.setColumnOggNumber(service.OGG_COLUMN);
+            excel.setSheet(workbook.getSheetAt(excel.getSheetNumber()));
+            Sheet sheet = excel.getSheet();
+            excel.setSheet(sheet);
+            excel.setFineNumber(service.addFineNumber(excel));
+            service.renumbering(excel);
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
