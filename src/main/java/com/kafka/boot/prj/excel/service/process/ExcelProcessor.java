@@ -1,20 +1,22 @@
-package com.kafka.boot.prj.excel.service;
+package com.kafka.boot.prj.excel.service.process;
 
-import com.kafka.boot.prj.excel.dto.ExcelToProcess;
+import com.kafka.boot.prj.excel.model.process.InputExcel;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Service("excelManager")
-public class ExcelProcessService {
-
+public class ExcelProcessor implements Processable {
     private final String TC = "TC";
     private final String SG = "SG";
     private final String OGG = "Ogg. ";
@@ -25,19 +27,28 @@ public class ExcelProcessService {
     private final int ROW = 1;
     private final int SHEET = 2;
 
-    @Autowired
-    private ExcelToProcess excelToProcess;
+    private final InputExcel inputExcel;
 
+    public ExcelProcessor(InputExcel inputExcel) {
+        this.inputExcel = inputExcel;
+        this.inputExcel.setFineNumber(addFineNumber());
+        this.inputExcel.setSheetNumber(this.SHEET);
+        this.inputExcel.setRowNumber(this.ROW);
+        this.inputExcel.setColumnFineNumber(this.FINE_COLUMN);
+        this.inputExcel.setColumnOggNumber(this.OGG_COLUMN);
+        this.inputExcel.setSheet(workbook.getSheetAt(this.inputExcel.getSheetNumber()));
+        Sheet sheet = this.inputExcel.getSheet();
+        this.inputExcel.setSheet(sheet);
+        this.inputExcel.setFineNumber(this.addFineNumber());
 
-    public ExcelProcessService() {
     }
 
-
-    private String addFineNumber(final ExcelToProcess excelToProcess) {
+    private String addFineNumber() {
         DataFormatter formatter = new DataFormatter();
-        return findFineNumber(formatter, excelToProcess.getSheet(), excelToProcess.getColumnFineNumber(), excelToProcess.getRowNumber());
+        return findFineNumber(formatter, inputExcel.getSheet(), inputExcel.getColumnFineNumber(), inputExcel.getRowNumber());
         //return formatNumber(Integer.valueOf(tempNumber), pattern);
     }
+
 
     private String findFineNumber(DataFormatter formatter, Sheet sheet, final int COLUMN, final int ROW) {
         Row row = sheet.getRow(ROW);
@@ -45,6 +56,7 @@ public class ExcelProcessService {
         String text = formatter.formatCellValue(cell);
         return findFineNumber(text);
     }
+
 
     private String findFineNumber(String text) {
         Integer fineNumber = 0;
@@ -57,6 +69,7 @@ public class ExcelProcessService {
         return formatNumber(fineNumber, this.FORMAT_PATTERN_FINE);
     }
 
+
     private String formatNumber(final Integer tempNum, final String pattern) {
         String fineNumber;
         DecimalFormat myFormatter = new DecimalFormat(pattern);
@@ -64,10 +77,12 @@ public class ExcelProcessService {
         return fineNumber;
     }
 
-    public void renumbering(ExcelToProcess excel) {
-        final Sheet sheet = excel.getSheet();
-        final int columnFine = excel.getColumnFineNumber();
-        final int columnOgg = excel.getColumnOggNumber();
+
+    @Override
+    public void renumbering() {
+        final Sheet sheet = inputExcel.getSheet();
+        final int columnFine = inputExcel.getColumnFineNumber();
+        final int columnOgg = inputExcel.getColumnOggNumber();
         DataFormatter formatter = new DataFormatter();
         String prefixOfFineWord = null, prefixOfOggWord = null;
         String cellFineValue, cellOggValue;
@@ -89,7 +104,7 @@ public class ExcelProcessService {
                     }
                     String num = this.formatNumber(fineIndex, FORMAT_PATTERN_NUM);
                     System.out.println(prefixOfFineWord + " " + num);
-                    cellFineValue = prefixOfFineWord + excel.getFineNumber() + num;
+                    cellFineValue = prefixOfFineWord + inputExcel.getFineNumber() + num;
                     fineCell.setCellValue(cellFineValue);
                 }
 
@@ -105,45 +120,16 @@ public class ExcelProcessService {
                     }
                     String num = this.formatNumber(oggIndex, FORMAT_PATTERN_NUM);
                     System.out.println(prefixOfOggWord + " " + num);
-                    cellOggValue = prefixOfOggWord + excel.getFineNumber() + num;
+                    cellOggValue = prefixOfOggWord + inputExcel.getFineNumber() + num;
                     oggCell.setCellValue(cellOggValue);
                 }
             }
         }
-        try (OutputStream fileOut = new FileOutputStream(excel.getPath())) {
-            HSSFWorkbook wb = excel.getWorkBook();
+        try (OutputStream fileOut = new FileOutputStream(inputExcel.getPath())) {
+            HSSFWorkbook wb = inputExcel.getWorkBook();
             wb.write(fileOut);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-
-    public static void main(String[] args) {
-
-        try {
-            String path = "C:\\Users\\sabatinija\\Desktop\\Testrename\\TestBook_Progettazione Giga Ricarica - Copy.xls";
-            //String path = "TestBook_Progettazione Giga Ricarica - Copy.xls";
-            ExcelProcessService service = new ExcelProcessService();
-            FileInputStream file = new FileInputStream(new File(path));
-            // FileInputStream file = new FileInputStream(new File());
-            HSSFWorkbook workbook = new HSSFWorkbook(file);
-            ExcelToProcess excel = new ExcelToProcess(workbook);
-            excel.setPath(path);
-            excel.setSheetNumber(service.SHEET);
-            excel.setRowNumber(service.ROW);
-            excel.setColumnFineNumber(service.FINE_COLUMN);
-            excel.setColumnOggNumber(service.OGG_COLUMN);
-            excel.setSheet(workbook.getSheetAt(excel.getSheetNumber()));
-            Sheet sheet = excel.getSheet();
-            excel.setSheet(sheet);
-            excel.setFineNumber(service.addFineNumber(excel));
-            service.renumbering(excel);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
-
-

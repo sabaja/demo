@@ -1,6 +1,6 @@
 package com.kafka.boot.prj;
 
-import com.kafka.boot.prj.excel.dto.ExcelToProcess;
+import com.kafka.boot.prj.excel.model.process.InputExcel;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,13 +20,13 @@ public class PrjApplication {
 
     @Bean
     public HSSFWorkbook excelProcessService() throws IOException {
-        FileInputStream file = new FileInputStream(new File("TestBook_Progettazione Giga Ricarica - Copy.xls"));
+        FileInputStream file : new FileInputStream(new File("TestBook_Progettazione Giga Ricarica - Copy.xls"));
         return new HSSFWorkbook(file);
     }
 
     @Bean
-    public ExcelToProcess excelToProcess() throws IOException {
-        return new ExcelToProcess(excelProcessService());
+    public InputExcel excelToProcess() throws IOException {
+        return new InputExcel(excelProcessService());
     }
 
 }
