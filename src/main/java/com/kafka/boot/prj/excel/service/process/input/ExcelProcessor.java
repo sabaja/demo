@@ -1,46 +1,27 @@
-package com.kafka.boot.prj.excel.service.process;
+package com.kafka.boot.prj.excel.service.process.input;
 
 import com.kafka.boot.prj.excel.model.process.InputExcel;
+import com.kafka.boot.prj.excel.service.process.constant.ExcelDataProcess;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Service
 public class ExcelProcessor implements Processable {
-    private final String TC = "TC";
-    private final String SG = "SG";
-    private final String OGG = "Ogg. ";
-    private final String FORMAT_PATTERN_NUM = "000";
-    private final String FORMAT_PATTERN_FINE = "00";
-    private final int FINE_COLUMN = 2;
-    private final int OGG_COLUMN = 4;
-    private final int ROW = 1;
-    private final int SHEET = 2;
 
     private final InputExcel inputExcel;
 
+
     public ExcelProcessor(InputExcel inputExcel) {
         this.inputExcel = inputExcel;
-        this.inputExcel.setFineNumber(addFineNumber());
-        this.inputExcel.setSheetNumber(this.SHEET);
-        this.inputExcel.setRowNumber(this.ROW);
-        this.inputExcel.setColumnFineNumber(this.FINE_COLUMN);
-        this.inputExcel.setColumnOggNumber(this.OGG_COLUMN);
-        this.inputExcel.setSheet(workbook.getSheetAt(this.inputExcel.getSheetNumber()));
-        Sheet sheet = this.inputExcel.getSheet();
-        this.inputExcel.setSheet(sheet);
-        this.inputExcel.setFineNumber(this.addFineNumber());
-
     }
 
     private String addFineNumber() {
@@ -60,13 +41,13 @@ public class ExcelProcessor implements Processable {
 
     private String findFineNumber(String text) {
         Integer fineNumber = 0;
-        Pattern word = Pattern.compile(TC);
+        Pattern word = Pattern.compile(ExcelDataProcess.TC.getAString());
         Matcher match = word.matcher(text);
         while (match.find()) {
             System.out.println("Found TC at index " + match.start() + " - " + (match.end()) + " - " + text.length());
             fineNumber = Integer.valueOf(text.substring(match.end(), match.end() + 2));
         }
-        return formatNumber(fineNumber, this.FORMAT_PATTERN_FINE);
+        return formatNumber(fineNumber, ExcelDataProcess.FORMAT_PATTERN_FINE.getAString());
     }
 
 
@@ -79,7 +60,7 @@ public class ExcelProcessor implements Processable {
 
 
     @Override
-    public void renumbering() {
+    public HSSFWorkbook renumbering() {
         final Sheet sheet = inputExcel.getSheet();
         final int columnFine = inputExcel.getColumnFineNumber();
         final int columnOgg = inputExcel.getColumnOggNumber();
@@ -93,43 +74,41 @@ public class ExcelProcessor implements Processable {
                 Cell oggCell = row.getCell(columnOgg);
 
                 //Renumbering of TC
-                if ((cellFineValue = formatter.formatCellValue(fineCell)).contains(SG)) {
+                if ((cellFineValue = formatter.formatCellValue(fineCell)).contains(ExcelDataProcess.SG.getAString())) {
                     fineIndex++;
                     //cellValue = cellValue.trim();
+                    final String TC = ExcelDataProcess.TC.getAString();
                     final int startFineWord = cellFineValue.indexOf(TC) + TC.length();
                     // System.out.printf("%d ", startFineWord);
 
                     if (Objects.isNull(prefixOfFineWord)) {
                         prefixOfFineWord = cellFineValue.substring(0, startFineWord);
                     }
-                    String num = this.formatNumber(fineIndex, FORMAT_PATTERN_NUM);
+                    String num = this.formatNumber(fineIndex, ExcelDataProcess.TC.FORMAT_PATTERN_NUM.getAString());
                     System.out.println(prefixOfFineWord + " " + num);
                     cellFineValue = prefixOfFineWord + inputExcel.getFineNumber() + num;
                     fineCell.setCellValue(cellFineValue);
                 }
 
                 //Renumbering of Ogg.
-                if ((cellOggValue = formatter.formatCellValue(oggCell)).contains(OGG)) {
+                if ((cellOggValue = formatter.formatCellValue(oggCell)).contains(ExcelDataProcess.OGG.getAString())) {
                     oggIndex++;
                     //cellValue = cellValue.trim();
+                    final String OGG = ExcelDataProcess.OGG.getAString();
                     final int startFineWord = cellOggValue.indexOf(OGG) + OGG.length();
                     // System.out.printf("%d ", startFineWord);
 
                     if (Objects.isNull(prefixOfOggWord)) {
                         prefixOfOggWord = cellOggValue.substring(0, startFineWord);
                     }
-                    String num = this.formatNumber(oggIndex, FORMAT_PATTERN_NUM);
+                    String num = this.formatNumber(oggIndex, ExcelDataProcess.TC.FORMAT_PATTERN_NUM.getAString());
                     System.out.println(prefixOfOggWord + " " + num);
                     cellOggValue = prefixOfOggWord + inputExcel.getFineNumber() + num;
                     oggCell.setCellValue(cellOggValue);
                 }
             }
         }
-        try (OutputStream fileOut = new FileOutputStream(inputExcel.getPath())) {
-            HSSFWorkbook wb = inputExcel.getWorkBook();
-            wb.write(fileOut);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        return this.inputExcel.getIoExcel().getWorkBook();
     }
 }

@@ -1,17 +1,18 @@
 package com.kafka.boot.prj.excel.service;
 
 import com.kafka.boot.prj.excel.model.process.InputExcel;
-import com.kafka.boot.prj.excel.service.process.ExcelProcessor;
-import com.kafka.boot.prj.excel.service.process.Processable;
+import com.kafka.boot.prj.excel.service.process.input.ExcelProcessor;
+import com.kafka.boot.prj.excel.service.process.input.Processable;
+import com.kafka.boot.prj.excel.service.process.io.IOExcelService;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 
-@Component
-public class ExcelManager implements Processable {
+@Service
+public class ExcelManager {
 
     /*
     private final String TC = "TC";
@@ -25,10 +26,12 @@ public class ExcelManager implements Processable {
     private final int SHEET = 2;
     */
     private ExcelProcessor processor;
+    private IOExcelService excelService;
 
     @Autowired
-    public ExcelManager(ExcelProcessor processor) {
+    public ExcelManager(ExcelProcessor processor, IOExcelService excelService) {
         this.processor = processor;
+        this.excelService = excelService;
     }
 
     public static void main(String[] args) {
@@ -61,9 +64,8 @@ public class ExcelManager implements Processable {
     }
 
 
-    @Override
-    public void renumbering() {
-        processor.renumbering();
+    public void run() {
+
     }
 }
 

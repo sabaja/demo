@@ -1,14 +1,13 @@
 package com.kafka.boot.prj.excel.model.process;
 
-import com.kafka.boot.prj.excel.model.Excel;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 //https://codingjam.it/dai-costruttori-al-builder-pattern-in-java/
-public class InputExcel extends Excel {
+public class InputExcel {
 
+    private IOExcel ioExcel;
     private Sheet sheet;
     private Row row;
     private Cell cell;
@@ -21,10 +20,13 @@ public class InputExcel extends Excel {
     private int sheetNumber;
 
 
-    public InputExcel(HSSFWorkbook workBook) {
-        super(workBook);
+    public IOExcel getIoExcel() {
+        return ioExcel;
     }
 
+    public void setIoExcel(IOExcel ioExcel) {
+        this.ioExcel = ioExcel;
+    }
 
     public Sheet getSheet() {
         return sheet;
