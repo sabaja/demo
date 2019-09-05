@@ -15,12 +15,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class ExcelProcessor implements Processable {
+public class InputExcelProcessImpl implements InputExcelProcess {
 
     private final InputExcel inputExcel;
 
 
-    public ExcelProcessor(InputExcel inputExcel) {
+    public InputExcelProcessImpl(InputExcel inputExcel) {
         this.inputExcel = inputExcel;
     }
 

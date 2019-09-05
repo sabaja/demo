@@ -1,15 +1,9 @@
 package com.kafka.boot.prj.excel.service;
 
-import com.kafka.boot.prj.excel.model.process.InputExcel;
-import com.kafka.boot.prj.excel.service.process.input.ExcelProcessor;
-import com.kafka.boot.prj.excel.service.process.input.Processable;
+import com.kafka.boot.prj.excel.service.process.input.InputExcelProcessImpl;
 import com.kafka.boot.prj.excel.service.process.io.IOExcelService;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.*;
 
 @Service
 public class ExcelManager {
@@ -25,18 +19,19 @@ public class ExcelManager {
     private final int ROW = 1;
     private final int SHEET = 2;
     */
-    private ExcelProcessor processor;
+    private InputExcelProcessImpl processor;
     private IOExcelService excelService;
 
     @Autowired
-    public ExcelManager(ExcelProcessor processor, IOExcelService excelService) {
+    public ExcelManager(InputExcelProcessImpl processor, IOExcelService excelService) {
         this.processor = processor;
         this.excelService = excelService;
     }
 
     public static void main(String[] args) {
-
+/*
         try {
+
             String path = "C:\\Users\\sabatinija\\Desktop\\Testrename\\TestBook_Progettazione Giga Ricarica - Copy.xls";
             //String path = "TestBook_Progettazione Giga Ricarica - Copy.xls";
             FileInputStream file = new FileInputStream(new File(path));
@@ -61,6 +56,8 @@ public class ExcelManager {
             e.printStackTrace();
         }
 
+
+ */
     }
 
 
