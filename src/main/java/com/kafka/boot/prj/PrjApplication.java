@@ -13,6 +13,7 @@ public class PrjApplication {
         SpringApplication.run(PrjApplication.class, args);
     }
 
+    //https://dzone.com/articles/learn-how-to-use-junit-5-to-test-your-spring-boot
     @Configuration
     static class OktaOAuth2WebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
         @Override
@@ -26,6 +27,5 @@ public class PrjApplication {
                     .jwt();
         }
     }
-
 }
 

@@ -27,7 +27,7 @@ public class ExcelManager {
         this.processor = processor;
         this.excelService = excelService;
     }
-
+/*
     public static void main(String[] args) {
 /*
         try {
@@ -57,8 +57,8 @@ public class ExcelManager {
         }
 
 
- */
-    }
+
+    }*/
 
 
     public void run() {
