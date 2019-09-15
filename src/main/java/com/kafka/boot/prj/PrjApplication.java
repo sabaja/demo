@@ -3,8 +3,10 @@ package com.kafka.boot.prj;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
+/*
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+*/
 
 @SpringBootApplication
 public class PrjApplication {
@@ -14,7 +16,7 @@ public class PrjApplication {
     }
 
     //https://dzone.com/articles/learn-how-to-use-junit-5-to-test-your-spring-boot
-    @Configuration
+  /*  @Configuration
     static class OktaOAuth2WebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -26,6 +28,6 @@ public class PrjApplication {
                     .oauth2ResourceServer()
                     .jwt();
         }
-    }
+    }*/
 }
 
