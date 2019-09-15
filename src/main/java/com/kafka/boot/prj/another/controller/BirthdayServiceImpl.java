@@ -1,10 +1,12 @@
 package com.kafka.boot.prj.another.controller;
 
 import com.kafka.boot.prj.another.service.BirthdayService;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+@Service
 public class BirthdayServiceImpl implements BirthdayService {
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 

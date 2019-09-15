@@ -22,11 +22,13 @@ public class ExcelManager {
     private InputExcelProcessImpl processor;
     private IOExcelService excelService;
 
+    /*
     @Autowired
     public ExcelManager(InputExcelProcessImpl processor, IOExcelService excelService) {
         this.processor = processor;
         this.excelService = excelService;
-    }
+    }*/
+
 /*
     public static void main(String[] args) {
 /*

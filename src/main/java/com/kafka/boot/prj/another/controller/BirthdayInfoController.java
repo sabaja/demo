@@ -1,6 +1,7 @@
 package com.kafka.boot.prj.another.controller;
 
 import com.kafka.boot.prj.another.service.BirthdayService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 public class BirthdayInfoController {
     private final BirthdayService birthdayService;
 
+    @Autowired
     public BirthdayInfoController(BirthdayService birthdayService) {
         this.birthdayService = birthdayService;
     }

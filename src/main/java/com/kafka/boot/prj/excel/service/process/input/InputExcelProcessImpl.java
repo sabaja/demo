@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
@@ -17,10 +18,14 @@ import java.util.regex.Pattern;
 @Service
 public class InputExcelProcessImpl implements InputExcelProcess {
 
-    private final InputExcel inputExcel;
+    private  InputExcel inputExcel = new InputExcel();
 
+    public InputExcelProcessImpl() {
+    }
 
+    //@Autowired
     public InputExcelProcessImpl(InputExcel inputExcel) {
+
         this.inputExcel = inputExcel;
     }
 
